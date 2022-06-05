@@ -1,0 +1,41 @@
+services:
+  registry:
+    image: zeroc/icegridnode
+    build:
+      context: ./
+    volumes:
+      - type: bind
+        read_only: false
+        source: ./registry_store
+        target: /var/lib/ice/icegrid
+      - type: bind
+        read_only: true
+        source: ./registry.cfg
+        target: /etc/icegridnode.conf
+    networks:
+      - home-network
+  jnode1:
+    image: openjdk
+    build:
+      context: ./
+    working_dir: /ice/node/
+    volumes:
+      - type: bind
+        read_only: true
+        source: ./server/build/libs/server.jar
+        target: /ice/node/server.jar
+      - type: bind
+        read_only: true
+        source: ./server.cfg
+        target: /ice/node/server.cfg
+
+    entrypoint: java -jar /ice/node/server.jar --Ice.Config=./server.cfg
+
+networks:
+  home-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: "172.200.200.0/24"
+          gateway: "172.200.200.1"

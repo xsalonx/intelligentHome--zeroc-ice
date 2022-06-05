@@ -1,43 +1,43 @@
-public class Client
-{
-    public static void main(String[] args)
-    {
-        /*
-          Every Ice-based application needs to initialize the Ice run time,
-          and this initialization returns a com.zeroc.Ice.Communicator object.
-          A Communicator is a local Java object that represents an
-          instance of the Ice run time. Most Ice-based applications create
-          and use a single Communicator object, although it is possible
-          and occasionally desirable to have multiple Communicator objects
-          in the same application. Util.initialize accepts the argument vector
-          that is passed to main by the operating system.
-        */
-        try(com.zeroc.Ice.Communicator communicator =
-                    com.zeroc.Ice.Util.initialize(args))
-        {
+import com.zeroc.Ice.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+//https://pypi.org/project/zeroc-icecertutils/
+import java.lang.Exception;
+import java.util.Scanner;
 
-            /*
-             * The communicator operation stringToProxy creates a proxy
-             * from its stringified representation.
-             *
-             * Demo -> Printer -> printString
-             */
-            com.zeroc.Ice.ObjectPrx base =
-                    communicator.stringToProxy("SimplePrinter:default -p 10000");
+public class Client {
 
-            Demo.PrinterPrx printer = Demo.PrinterPrx.checkedCast(base);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
+    private static String adapterName = "HomeAdapter";
+    public static void main(String[] args) {
+        try (Communicator communicator =
+                     Util.initialize(args)) {
 
-            if(printer == null)
-            {
-                throw new Error("Invalid proxy");
+            Scanner scanner = new Scanner(System.in);
+            String cmd = "";
+            while (!"quit".equals(cmd)) {
+                try {
+                    System.out.print("==> ");
+                    cmd = scanner.nextLine().trim();
+                    if (cmd.startsWith("term")) {
+                        cmd = cmd.substring("term".length()).trim();
+                        int thermometer_index = Integer.parseInt(cmd);
+                        String objectName = "Thermometer_" + thermometer_index;
+                        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(
+                                objectName + "@" + adapterName);
+                        Home.ThermometerPrx temp = Home.ThermometerPrx.checkedCast(base);
+                        System.out.printf("%s: %f\n", objectName, temp.getCurrentTemperature());
+                    }
+                } catch (Home.HomeStaffStateException e){
+                    LOGGER.error(e.getMessage());
+                    System.out.println(e.getMessage());
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage());
+                    System.out.println(e.getMessage());
+                }
+
             }
-            printer.printString("Hello World!");
         }
-        /*
-          communicator is destroyed automatically here. The Communicator
-          interface implements java.lang.AutoCloseable: at the end of a
-          try-with-resources statement, the communicator is closed (destroyed)
-          automatically, without an explicit call to the destroy method.
-         */
     }
+
 }

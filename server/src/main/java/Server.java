@@ -1,19 +1,20 @@
-public class Server
-{
-    public static void main(String[] args)
-    {
-        try(com.zeroc.Ice.Communicator communicator =
-                    com.zeroc.Ice.Util.initialize(args))
-        {
-            com.zeroc.Ice.ObjectAdapter adapter =
-                    communicator.createObjectAdapterWithEndpoints(
-                            "SimplePrinterAdapter",
-                            "default -p 10000");
+import com.zeroc.Ice.*;
 
-            com.zeroc.Ice.Object object = new PrinterI();
+import java.util.Arrays;
 
-            adapter.add(object,
-                    com.zeroc.Ice.Util.stringToIdentity("SimplePrinter"));
+public class Server {
+
+    private static String adapterName = "HomeAdapter";
+    public static void main(String[] args) {
+        try (Communicator communicator =
+                     com.zeroc.Ice.Util.initialize(args)) {
+            System.out.println(Arrays.toString(args));
+            ObjectAdapter adapter =
+                    communicator.createObjectAdapter(adapterName);
+
+            adapter.add(new StreamerI(),
+                    com.zeroc.Ice.Util.stringToIdentity("Streamer_1"));
+            adapter.add(new ThermometerI(), com.zeroc.Ice.Util.stringToIdentity("Thermometer_1"));
 
             adapter.activate();
             communicator.waitForShutdown();
