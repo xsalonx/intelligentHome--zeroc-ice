@@ -31,9 +31,11 @@ public class Client {
                 } catch (Home.HomeStaffStateException e){
                     LOGGER.error(e.getMessage());
                     System.out.println(e.getMessage());
+                    e.printStackTrace();
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage());
                     System.out.println(e.getMessage());
+                    e.printStackTrace();
                 }
 
             }

@@ -1,5 +1,4 @@
 import com.zeroc.Ice.Current;
-
 import java.util.Calendar;
 
 public class ThermometerI implements Home.Thermometer {

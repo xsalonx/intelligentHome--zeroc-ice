@@ -33,5 +33,6 @@ subprojects {
                     "Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' ')
             )
         }
+        from configurations.compile.collect {it.isDirectory() ? it : zipTree(it)}
     }
 }

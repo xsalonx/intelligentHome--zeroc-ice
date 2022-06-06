@@ -1,8 +1,6 @@
 services:
   registry:
     image: zeroc/icegridnode
-    build:
-      context: ./
     volumes:
       - type: bind
         read_only: false
@@ -13,12 +11,14 @@ services:
         source: ./registry.cfg
         target: /etc/icegridnode.conf
     networks:
-      - home-network
+      home-network:
+        ipv4_address: 172.200.200.2
+
   jnode1:
     image: openjdk
-    build:
-      context: ./
     working_dir: /ice/node/
+    depends_on:
+      - "registry"
     volumes:
       - type: bind
         read_only: true
@@ -28,8 +28,16 @@ services:
         read_only: true
         source: ./server.cfg
         target: /ice/node/server.cfg
+      - type: bind
+        read_only: true
+        source: ./scripts/wait-for-it.sh
+        target: /ice/node/wait-for-it.sh
+    environment:
+      - RUNNING_ENV=DOCKER
+    networks:
+      - home-network
 
-    entrypoint: java -jar /ice/node/server.jar --Ice.Config=./server.cfg
+    entrypoint: ./wait-for-it.sh registry:4061 -- java -jar server.jar --Ice.Config=server.cfg
 
 networks:
   home-network:
