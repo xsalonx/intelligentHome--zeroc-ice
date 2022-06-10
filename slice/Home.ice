@@ -13,12 +13,16 @@ interface Thermometer {
 };
 
 interface Light {
-    double setBrightness(double b) throws HomeStaffStateException;
-    double getBrightness(double b) throws HomeStaffStateException;
+    void setBrightness(double b) throws HomeStaffStateException;
+    double getBrightness() throws HomeStaffStateException;
 };
 
+sequence<byte> ByteSeq;
+const int ByteSeqSize = 500000;
+
 interface Camera {
-    void getStream() throws HomeStaffStateException;
+    ["marshaled-result", "java:buffer"] ByteSeq getStream();
+//    void shutdownStream();
 }
 
 

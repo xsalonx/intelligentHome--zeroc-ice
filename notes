@@ -1,3 +1,4 @@
 sudo apt install libbz2-dev
 pip install zeroc-ice
 https://pypi.org/project/zeroc-icecertutils/
+https://forums.zeroc.com/discussion/46677/need-help-working-sample-to-send-stream-data-from-server-to-client

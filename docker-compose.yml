@@ -40,6 +40,7 @@ services:
         target: /ice/node/data
     environment:
       - RUNNING_ENV=DOCKER
+      - OBJECT_CONF_FILE=/ice/node/config/home1/objects.conf
     networks:
       - home-network
     entrypoint: ./scripts/wait-for-it.sh registry:4061 -- icegridnode --Ice.Config=config/home1/node.cfg
@@ -70,6 +71,8 @@ services:
         target: /ice/node/data
     environment:
       - RUNNING_ENV=DOCKER
+      - OBJECT_CONF_FILE=/ice/node/config/garage/objects.conf
+
     networks:
       - home-network
     entrypoint: ./scripts/wait-for-it.sh registry:4061 -- icegridnode --Ice.Config=config/garage/node.cfg

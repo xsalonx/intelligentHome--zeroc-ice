@@ -4,6 +4,7 @@ import Home
 
 import re
 import time
+import os
 
 if __name__ == '__main__':
     adapterName = "IHAdapter"
@@ -48,12 +49,51 @@ if __name__ == '__main__':
                         pass
                     else:
                         raise Exception("incorrect command")
-                else:
+
+                elif cmd.startswith("light"):
+                    objectName = "Light_{}@{}{}.{}".format(cmdAndParams[1], serverPrefix, serverName, adapterName)
+                    print(objectName)
+                    base = communicator.stringToProxy(objectName)
+                    light = Home.LightPrx.checkedCast(base)
+                    if re.match("light \\d+ curr", cmd):
+                        print(light.getBrightness())
+                    elif re.match("light \\d+ set \\d+(\.\\d+)?", cmd):
+                        target_brightness = float(cmdAndParams[3])
+                        light.setBrightness(target_brightness)
+                    else:
+                        raise Exception("incorrect command")
+
+                elif cmd.startswith("camera"):
+                    if re.match("camera \\d+ stream", cmd):
+                        objectName = "Camera_{}@{}{}.{}".format(cmdAndParams[1], serverPrefix, serverName, adapterName)
+                        print(objectName)
+                        base = communicator.stringToProxy(objectName)
+                        camera = Home.CameraPrx.checkedCast(base)
+                        camera.ice_ping()
+
+                        repetitions = 2
+
+                        print("sending and receiving {} bytes seq of size {} ...".format(repetitions, -1))
+                        results = []
+                        for i in range(repetitions):
+                            p = camera.getStream()
+                            res = p  # .wait()
+                            print(res)
+
+                        # camera.shutdownStream()
+                    elif cmd != "":
+                        raise Exception("incorrect command")
+
+
+                elif re.match("print .+", cmd):
+                    if re.match("print target", cmd):
+                        print("@{}{}.{}".format(serverPrefix, serverName, adapterName))
+                    else:
+                        raise Exception("incorrect command")
+
+                elif cmd != "":
                     raise Exception("incorrect command")
 
-
-
             except Exception as e:
-                print(e.__class__)
                 print(e)
                 print()

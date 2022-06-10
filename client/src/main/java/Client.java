@@ -38,6 +38,9 @@ public class Client {
                         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(objectName);
                         Home.ThermometerPrx thermometer = Home.ThermometerPrx.checkedCast(base);
 
+                        Home.CameraPrx a = Home.CameraPrx.checkedCast(base);
+                        a.getStream();
+
                         if (cmd.matches("term \\d+ curr")) {
                             System.out.printf("%f\n", thermometer.getCurrentTemperature());
                         } else if (cmd.matches("term \\d+ range .+")) {
@@ -68,7 +71,7 @@ public class Client {
                         } else {
                             LOGGER.error("incorrect command");
                         }
-                    } else {
+                    } else if (!cmd.equals("")) {
                         LOGGER.error("incorrect command");
                     }
 
