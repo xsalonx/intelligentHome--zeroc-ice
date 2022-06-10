@@ -1,0 +1,7 @@
+FROM zeroc/icegridnode as base
+
+WORKDIR /ice/node/
+
+RUN apt update; apt install software-properties-common -y;
+RUN add-apt-repository ppa:linuxuprising/java -y;
+RUN apt update; echo oracle-java17-installer shared/accepted-oracle-license-v1-3 select true | /usr/bin/debconf-set-selections; apt-get install oracle-java17-installer -y;

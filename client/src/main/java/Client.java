@@ -1,15 +1,20 @@
 import com.zeroc.Ice.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-//https://pypi.org/project/zeroc-icecertutils/
 import java.lang.Exception;
+import java.util.Calendar;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Client {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Client.class);
-    private static String adapterName = "HomeAdapter";
+
     public static void main(String[] args) {
+        String adapterName = "IHAdapter";
+        String serverPrefix = "IHServer_";
+        String serverName = "home1";
+
         try (Communicator communicator =
                      Util.initialize(args)) {
 
@@ -19,23 +24,59 @@ public class Client {
                 try {
                     System.out.print("==> ");
                     cmd = scanner.nextLine().trim();
-                    if (cmd.startsWith("term")) {
-                        cmd = cmd.substring("term".length()).trim();
-                        int thermometer_index = Integer.parseInt(cmd);
-                        String objectName = "Thermometer_" + thermometer_index;
-                        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(
-                                objectName + "@" + adapterName);
-                        Home.ThermometerPrx temp = Home.ThermometerPrx.checkedCast(base);
-                        System.out.printf("%s: %f\n", objectName, temp.getCurrentTemperature());
+                    String[] cmdAndParams = cmd.split(" +");
+                    cmd = String.join(" ", cmdAndParams);
+                    if (cmd.matches("set server .+")) {
+                        serverName = cmdAndParams[2];
+                    } else if (cmd.matches("set adapter .+")) {
+                        adapterName = cmdAndParams[2];
+                    } else if (cmd.startsWith("term")) {
+                        String objectName = String.format(
+                                "Thermometer_%s@%s%s.%s", cmdAndParams[1], serverPrefix, serverName, adapterName);
+
+                        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(objectName);
+                        Home.ThermometerPrx thermometer = Home.ThermometerPrx.checkedCast(base);
+
+                        if (cmd.matches("term \\d+ curr")) {
+
+                            System.out.printf("%f\n", thermometer.getCurrentTemperature());
+                        } else if (cmd.matches("term \\d+ range .+")) {
+                            long upper, lower;
+                            if (cmdAndParams[3].equals("-n")) {
+                                upper = Calendar.getInstance().getTimeInMillis();
+                            } else {
+                                throw new RuntimeException("other date range than with upper equal to NOW is not implemented");
+                            }
+
+                            if (cmdAndParams[4].equals("-m")) {
+                                lower = 60000 * Long.parseLong(cmdAndParams[5]);
+                            } else {
+                                throw new RuntimeException("other time unit than minutes is not implemented, use (-m)");
+                            }
+
+                            Map<Long, Double> res = thermometer.getMeasuresInTimeRange(lower, upper);
+                            System.out.println(res);
+                        } else if (cmd.matches("term \\d+ stream")) {
+                            OutputStream outputStream = new OutputStream(communicator);
+
+                        } else {
+                            LOGGER.error("incorrect command");
+                        }
+                    } else if (cmd.matches("print .+")) {
+                        if (cmd.matches("print target")) {
+                            System.out.printf("@%s%s.%s%n", serverPrefix, serverName, adapterName);
+                        } else {
+                            LOGGER.error("incorrect command");
+                        }
+                    } else {
+                        LOGGER.error("incorrect command");
                     }
+
+
                 } catch (Home.HomeStaffStateException e){
                     LOGGER.error(e.getMessage());
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage());
-                    System.out.println(e.getMessage());
-                    e.printStackTrace();
                 }
 
             }

@@ -2,3 +2,5 @@
 **/build
 registry_store
 .idea
+tmp
+pyclient/sliceGen

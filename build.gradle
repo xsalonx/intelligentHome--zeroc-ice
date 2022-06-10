@@ -22,7 +22,8 @@ subprojects {
 
     dependencies {
         compile 'com.zeroc:ice:3.7.1'
-        implementation 'org.slf4j:slf4j-api:1.7.36'
+        compile 'org.slf4j:slf4j-api:1.7.36'
+        compile 'org.slf4j:slf4j-simple:1.7.36'
 
     }
 
@@ -36,3 +37,23 @@ subprojects {
         from configurations.compile.collect {it.isDirectory() ? it : zipTree(it)}
     }
 }
+
+
+
+task build {
+    doLast {
+        project.mkdir('./pyclient/sliceGen')
+
+        exec {
+            workingDir '.'
+            commandLine 'slice2py', 'slice/Home.ice', '--output-dir=pyclient/sliceGen'
+        }
+    }
+}
+
+task clean {
+    doLast {
+        delete './pyclient/sliceGen'
+    }
+}
+

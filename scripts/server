@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java -jar /ice/node/server.jar $1

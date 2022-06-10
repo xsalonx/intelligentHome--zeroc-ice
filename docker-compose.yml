@@ -8,15 +8,17 @@ services:
         target: /var/lib/ice/icegrid
       - type: bind
         read_only: true
-        source: ./registry.cfg
+        source: ./config/registry.cfg
         target: /etc/icegridnode.conf
     networks:
       home-network:
         ipv4_address: 172.200.200.2
 
-  jnode1:
-    image: openjdk
-    working_dir: /ice/node/
+  jnode_home1:
+    build:
+      context: ./
+      dockerfile: Dockerfile.node
+      target: base
     depends_on:
       - "registry"
     volumes:
@@ -26,18 +28,51 @@ services:
         target: /ice/node/server.jar
       - type: bind
         read_only: true
-        source: ./server.cfg
-        target: /ice/node/server.cfg
+        source: ./config
+        target: /ice/node/config
       - type: bind
         read_only: true
-        source: ./scripts/wait-for-it.sh
-        target: /ice/node/wait-for-it.sh
+        source: ./scripts
+        target: /ice/node/scripts
+      - type: bind
+        read_only: false
+        source: ./tmp
+        target: /ice/node/data
     environment:
       - RUNNING_ENV=DOCKER
     networks:
       - home-network
+    entrypoint: ./scripts/wait-for-it.sh registry:4061 -- icegridnode --Ice.Config=config/home1/node.cfg
 
-    entrypoint: ./wait-for-it.sh registry:4061 -- java -jar server.jar --Ice.Config=server.cfg
+  jnode_garage:
+    build:
+      context: ./
+      dockerfile: Dockerfile.node
+      target: base
+    depends_on:
+      - "registry"
+    volumes:
+      - type: bind
+        read_only: true
+        source: ./server/build/libs/server.jar
+        target: /ice/node/server.jar
+      - type: bind
+        read_only: true
+        source: ./config
+        target: /ice/node/config
+      - type: bind
+        read_only: true
+        source: ./scripts
+        target: /ice/node/scripts
+      - type: bind
+        read_only: false
+        source: ./tmp
+        target: /ice/node/data
+    environment:
+      - RUNNING_ENV=DOCKER
+    networks:
+      - home-network
+    entrypoint: ./scripts/wait-for-it.sh registry:4061 -- icegridnode --Ice.Config=config/garage/node.cfg
 
 networks:
   home-network:

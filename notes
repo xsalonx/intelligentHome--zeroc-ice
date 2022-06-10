@@ -1,0 +1,3 @@
+sudo apt install libbz2-dev
+pip install zeroc-ice
+https://pypi.org/project/zeroc-icecertutils/

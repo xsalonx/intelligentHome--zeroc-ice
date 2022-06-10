@@ -1,20 +1,20 @@
 <icegrid>
     <application name="IntelligentHome">
-        <server-template id="IntelligentHomeServerTemplate">
+        <server-template id="IHServerTemplate">
             <parameter name="index"/>
-            <server id="IntelligentHomeServer${index}"
-                    exe="java -jar /ice/node/server.jar --Ice.Config=/ice/node/server.cfg"
+            <server id="IHServer_${index}"
+                    exe="/ice/node/scripts/server"
                     activation="always">
-                <adapter name="HomeAdapter"  endpoints="tcp">
-                    <allocatable identity="HomeAdapter${index}"/>
+                <adapter name="IHAdapter"  endpoints="tcp">
+                    <allocatable identity="IHAdapter${index}"/>
                 </adapter>
             </server>
         </server-template>
         <node name="Node1">
-            <server-instance template="IntelligentHomeServerTemplate" index="1"/>
+            <server-instance template="IHServerTemplate" index="home1"/>
         </node>
-<!--        <node name="Node2">-->
-<!--            <server-instance template="IntelligentHomeServerTemplate" index="2"/>-->
-<!--        </node>-->
+        <node name="Node2">
+            <server-instance template="IHServerTemplate" index="garage"/>
+        </node>
     </application>
 </icegrid>

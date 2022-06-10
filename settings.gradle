@@ -1,4 +1,4 @@
-rootProject.name = 'printer'
+rootProject.name = 'intelligentHome'
 include 'client'
 include 'server'
 

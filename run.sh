@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 SCRIPT_PATH=$(dirname "$0")
 
-rm -rf registry_store
-mkdir -p registry_store
+sudo rm -rf registry_store tmp
+sudo mkdir -p registry_store tmp
 gradle clean
 gradle build
-docker-compose -f docker-compose.yml up --build
+docker-compose -f docker-compose.yml up --build -d
+echo "trying to send xml conf"
+sleep 2
+icegridadmin -e "node list" --username "admin" --password "password"
+icegridadmin -e "application add intelligentHomeDescription.xml" --username "admin" --password "password"
+docker-compose up
 
-
-#icegridregistry --Ice.Config=./register.cfg
-#java -jar "$SCRIPT_PATH/server/build/lib/server.jar"
-#java -jar "$SCRIPT_PATH/client/build/lib/client.jar"
+# TODO
+docker-compose rm --force
+sudo rm -rf registry_store tmp
