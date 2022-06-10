@@ -42,18 +42,18 @@ subprojects {
 
 task build {
     doLast {
-        project.mkdir('./pyclient/sliceGen')
+//        project.mkdir('./pyclient/sliceGen')
 
         exec {
             workingDir '.'
-            commandLine 'slice2py', 'slice/Home.ice', '--output-dir=pyclient/sliceGen'
+            commandLine 'slice2py', 'slice/Home.ice', '--output-dir=pyclient'
         }
     }
 }
 
 task clean {
-    doLast {
-        delete './pyclient/sliceGen'
-    }
+//    doLast {
+//        delete './pyclient/sliceGen'
+//    }
 }
 

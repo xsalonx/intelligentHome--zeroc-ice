@@ -34,12 +34,11 @@ public class Client {
                     } else if (cmd.startsWith("term")) {
                         String objectName = String.format(
                                 "Thermometer_%s@%s%s.%s", cmdAndParams[1], serverPrefix, serverName, adapterName);
-
+                        System.out.println(objectName);
                         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(objectName);
                         Home.ThermometerPrx thermometer = Home.ThermometerPrx.checkedCast(base);
 
                         if (cmd.matches("term \\d+ curr")) {
-
                             System.out.printf("%f\n", thermometer.getCurrentTemperature());
                         } else if (cmd.matches("term \\d+ range .+")) {
                             long upper, lower;
