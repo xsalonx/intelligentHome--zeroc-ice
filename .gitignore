@@ -4,4 +4,4 @@ gradle
 registry_store
 .idea
 tmp
-pyclient/Home*
+Home*

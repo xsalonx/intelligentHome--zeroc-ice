@@ -4,7 +4,7 @@
             <parameter name="index"/>
             <server id="IHServer_${index}"
                     exe="/ice/node/scripts/server"
-                    activation="always">
+                    activation="on-demand">
                 <adapter name="IHAdapter"  endpoints="tcp">
                     <allocatable identity="IHAdapter${index}"/>
                 </adapter>
