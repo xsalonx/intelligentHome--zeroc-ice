@@ -1,8 +1,10 @@
 import sys
 import Ice
-import sliceGen.Home
+import sliceGen.Home_ice as Home
 
 import re
+import time
+
 
 if __name__ == '__main__':
     adapterName = "IHAdapter"
@@ -17,7 +19,36 @@ if __name__ == '__main__':
             try:
                 cmd = input("==> ").strip()
                 cmdAndParams = re.split(r" +", cmd)
+                cmd = ' '.join(cmdAndParams)
 
+                if re.match(r"set server .+", cmd):
+                    serverName = cmdAndParams[2]
+                elif re.match(r"set adapter .+", cmd):
+                    adapterName = cmdAndParams[2]
+                elif cmd.startswith("term"):
+                    objectName = "Thermometer_{}@{}{}.{}".format(cmdAndParams[1], serverPrefix, serverName, adapterName)
+                    base = communicator.stringToProxy(objectName)
+                    thermometer = Home.ThermometerPrx.checkedCast(base)
+                    if re.match(r"term \\d+ curr", cmd):
+                        print(thermometer.getCurrentTemperature())
+                    elif re.match("term \\d+ range .+", cmd):
+                        if cmdAndParams[3] == "-n":
+                            upper = int(time.time()*1000)
+                        else:
+                            raise ValueError("other date range than with upper equal to NOW is not implemented")
+                        if cmdAndParams[4] == "-m":
+                            lower = 60000 * int(cmdAndParams[5])
+                        else:
+                            raise ValueError("other time unit than minutes is not implemented, use (-m)")
+
+                        res = thermometer.getMeasuresInTimeRange(lower, upper)
+                        print(res)
+                    elif re.match(r"term \\d+ stream", cmd):
+                        pass
+                    else:
+                        raise Exception("incorrect command")
+                else:
+                    raise Exception("incorrect command")
 
 
 
@@ -25,6 +56,3 @@ if __name__ == '__main__':
                 print(e.__class__)
                 print(e)
                 print()
-
-        if not base:
-            raise RuntimeError("Invalid proxy")
